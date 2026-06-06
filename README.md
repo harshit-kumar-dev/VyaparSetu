@@ -1,286 +1,405 @@
-# 🚀 VendorBridge ERP: Procurement & Vendor Management System
+<div align="center">
 
-[![ERP Version](https://img.shields.io/badge/ERP-v1.0.0-AD8B73?style=for-the-badge)](https://github.com)
-[![Stack](https://img.shields.io/badge/Stack-MERN_--_PostgreSQL-415A77?style=for-the-badge)](https://github.com)
-[![Status](https://img.shields.io/badge/Build-Passing-2E7D32?style=for-the-badge)](https://github.com)
+# ⚡ VendorBridge
 
-**VendorBridge** (formerly VyaparSetu) is a next-generation, high-performance Procurement & Vendor Management Enterprise Resource Planning (ERP) platform. Designed for modern organizations, it replaces fragmented email threads, manual spreadsheets, and un-audited procurement workflows with a centralized, role-based automation suite.
+### *Kill the spreadsheet. Own the supply chain.*
 
-With a highly secure clean-architecture backend and a beautiful glassmorphic dark/light interactive dashboard frontend, VendorBridge manages the entire procurement lifecycle—from registering verified suppliers to sending digital RFQs, comparing bids side-by-side, enforcing approval pipelines, generating official Purchase Orders (POs) and Tax Invoices, and sending them directly via SMTP email.
+**A production-grade, full-stack Procurement ERP that takes vendors from registration to paid invoice — fully automated, fully audited, fully yours.**
+
+<br/>
+
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Sequelize](https://img.shields.io/badge/ORM-Sequelize_6-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white)](https://sequelize.org)
+[![Socket.io](https://img.shields.io/badge/Realtime-Socket.io-010101?style=for-the-badge&logo=socket.io)](https://socket.io)
+[![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com)
+[![Build](https://img.shields.io/badge/Integration_Tests-7%2F7_Passing-2E7D32?style=for-the-badge&logo=checkmarx&logoColor=white)](#-testing)
+[![License](https://img.shields.io/badge/License-MIT-AD8B73?style=for-the-badge)](LICENSE)
+
+<br/>
+
+[**Live Demo**](#) · [**Excalidraw Mockup**](https://app.excalidraw.com/l/65VNwvy7c4X/5ywnm0v3qhK) · [**Report Bug**](https://github.com/harshit-kumar-dev/VyaparSetu/issues) · [**API Health**](http://localhost:5000/api/health)
+
+</div>
 
 ---
 
-## 🏗 System Architecture & Workflow
+## 🎯 The Problem We're Solving
 
-VendorBridge is built using the **PERN Stack** (PostgreSQL, Express.js, React, Node.js) with Sequelize ORM for transactional consistency, Socket.io for live notifications, Puppeteer for PDF document generation, and Cloudinary for secure file storage.
+Most procurement in Indian SMEs and enterprises still runs on WhatsApp forwards, Excel tenders, and trust-based approvals. This leads to:
 
-### 🌐 System Architecture Diagram
+- 📧 **Zero audit trails** — Who approved what? Nobody knows.
+- 📊 **No bid comparison** — Cheapest vendor? Just a gut feeling.
+- 🕐 **Manual bottlenecks** — POs taking days to generate instead of seconds.
+- 💸 **No spend visibility** — Finance teams flying blind.
+
+**VendorBridge** digitizes the *entire* procurement lifecycle on a single platform — structured, secure, and automated from the first RFQ to the final paid invoice.
+
+---
+
+## ✨ What VendorBridge Does
+
+> One platform. Eight modules. Zero manual errors.
+
+| # | Module | What It Does |
+|---|--------|-------------|
+| 🏢 | **Vendor Registry** | Register suppliers with GST details, categories, and performance scores |
+| 📋 | **Smart RFQ Engine** | Draft multi-item tenders, attach files, set deadlines, dispatch to vendors |
+| 💬 | **Quotation Portal** | Vendors submit itemized bids with delivery timelines via secure portal |
+| ⚖️ | **Bid Comparison Matrix** | Side-by-side price and delivery analysis — lowest bid auto-highlighted |
+| ✅ | **Approval Workflows** | Multi-step manager approval pipelines with full remark audit history |
+| 📦 | **Purchase Order Gen** | Auto-number POs generated as Cloudinary-hosted PDFs in one click |
+| 🧾 | **Invoice Engine** | GST-aware tax invoices with subtotals, email delivery, and print support |
+| 📡 | **Live Notifications** | Real-time Socket.io alerts for every procurement state change |
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
+
 ```mermaid
-graph TD
-    Client[Vite + React SPA Frontend] -->|REST API & WebSockets| Server[Express.js API Server]
-    Server -->|Sequelize ORM| DB[(PostgreSQL / Supabase Database)]
-    Server -->|SMTP Nodemailer| EmailServer[Gmail SMTP Gateway]
-    Server -->|PDF Engine| Puppeteer[Puppeteer PDF Generator]
-    Server -->|File Streams| Cloudinary[Cloudinary Storage]
+graph TB
+    subgraph Client["🖥️ Client — Vite + React 18"]
+        UI[Role-Based UI]
+        DM[Dark / Light Mode]
+        RT[Recharts Analytics]
+    end
+
+    subgraph Server["⚙️ API Server — Express.js + Node 22"]
+        Auth[JWT + RBAC Middleware]
+        Routes[8 Route Modules]
+        Services[Business Logic Services]
+        Sockets[Socket.io Engine]
+    end
+
+    subgraph Data["💾 Data & Storage"]
+        DB[(PostgreSQL / Supabase)]
+        CDN[Cloudinary CDN]
+        SMTP[Gmail SMTP]
+    end
+
+    Client -->|REST + WebSocket| Server
+    Server -->|Sequelize ORM| DB
+    Services -->|Puppeteer → Buffer| CDN
+    Services -->|Nodemailer| SMTP
+    Sockets -.->|Push Events| Client
 ```
 
-### ⚡ End-to-End Procurement Lifecycle Flow
+### End-to-End Procurement Flow
+
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Officer as Procurement Officer
-    actor Vendor as External Vendor
-    actor Manager as Manager / Approver
-    
-    Officer->>Server: 1. Register & Verify Vendor
-    Officer->>Server: 2. Create RFQ & Assign Vendors
-    Server-->>Vendor: Email Notification (RFQ Invitation)
-    Vendor->>Server: 3. Submit Bid / Quotation
-    Officer->>Server: 4. Compare Quotations Side-by-Side
-    Officer->>Server: 5. Initiate Approval Workflow
-    Server-->>Manager: Email Notification (Approval Required)
-    Manager->>Server: 6. Review & Approve Bid (with Remarks)
-    Officer->>Server: 7. Generate Purchase Order (PO)
-    Server->>Puppeteer: Generate PO PDF
-    Puppeteer->>Cloudinary: Upload PO PDF
-    Server-->>Vendor: Email PO PDF Link
-    Vendor->>Server: 8. Generate & Submit Invoice
-    Server->>Puppeteer: Generate Invoice PDF
-    Puppeteer->>Cloudinary: Upload Invoice PDF
-    Server-->>Officer: Email Invoice PDF Link
+    actor PO as 🧑‍💼 Procurement Officer
+    actor V  as 🏪 Vendor
+    actor M  as 👔 Manager
+
+    PO->>+API: Register & onboard vendor
+    PO->>API: Create RFQ (items + deadline + files)
+    API-->>V: 📧 Email — RFQ invitation
+    V->>API: Submit itemized quotation
+    PO->>API: Pull bid comparison matrix
+    PO->>API: Initiate approval workflow
+    API-->>M: 📧 Email — approval pending
+    M->>API: Approve with audit remarks
+    API-->>PO: 📡 Socket event — approved
+    PO->>+API: Generate Purchase Order
+    API->>Puppeteer: Render PDF
+    Puppeteer->>Cloudinary: Upload & get URL
+    API-->>V: 📧 PO PDF emailed
+    V->>API: Generate Tax Invoice (18% GST)
+    API->>Puppeteer: Render Invoice PDF
+    Puppeteer-->>-API: Secure CDN URL
+    API-->>-PO: 📧 Invoice PDF delivered
 ```
 
 ---
 
-## 🔑 User Roles & Permissions Matrix
+## 🔐 Security & Role Design
 
-The platform implements strict **Role-Based Access Control (RBAC)** to ensure data security and separation of duties.
-
-| Capability | Admin (`ADMIN`) | Procurement Officer (`PROCUREMENT_OFFICER`) | Manager / Approver (`MANAGER`) | External Vendor (`VENDOR`) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Manage Users & RBAC** | ✅ | ❌ | ❌ | ❌ |
-| **Register & Verify Vendors**| ✅ | ✅ | ❌ | ❌ |
-| **Draft & Publish RFQs** | ✅ | ✅ | ❌ | ❌ |
-| **Submit RFQ Quotations** | ❌ | ❌ | ❌ | ✅ |
-| **Compare Quotations** | ✅ | ✅ | ❌ | ❌ |
-| **Initiate Approval Pipeline**| ✅ | ✅ | ❌ | ❌ |
-| **Approve / Reject Workflow**| ✅ | ✅ | ✅ | ❌ |
-| **Generate Purchase Orders** | ✅ | ✅ | ❌ | ❌ |
-| **Generate Tax Invoices** | ✅ | ❌ | ❌ | ✅ |
-| **View System Audit Logs** | ✅ | ❌ | ❌ | ❌ |
-
----
-
-## 📂 Project Structure & Component Layout
-
-### Backend Component Layout (`backend`)
-* [app.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/app.js) - Main Express application configuration, middleware injection (CORS, Rate Limit, Helmet, Body parser).
-* [server.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/server.js) - Entry point. Connects to PostgreSQL via Sequelize, runs migrations, initializes Socket.io, and boots the HTTP server.
-* **src/config/** - Configuration parameters for database connections and third-party APIs:
-  - [database.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/config/database.js) - Dev, test, and production database setups with SSL support.
-  - [cloudinary.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/config/cloudinary.js) - Cloudinary storage and Multer image-parsing setups.
-* **src/models/** - Sequelize schemas representing DB relations and associations:
-  - [user.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/user.js) & [role.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/role.js) - User credentials, hashed passwords, and roles mapping.
-  - [vendor.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/vendor.js) & [vendorCategory.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/vendorCategory.js) & [vendorUser.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/vendorUser.js) - Supplier database.
-  - [rfq.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/rfq.js) & [rfqItem.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/rfqItem.js) & [rfqVendor.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/rfqVendor.js) - RFQ documents, multi-item line details, and assigned vendors.
-  - [quotation.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/quotation.js) & [quotationItem.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/quotationItem.js) - Submitted vendor pricing and delivery timelines.
-  - [approvalWorkflow.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/approvalWorkflow.js) & [approvalStep.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/approvalStep.js) - Approval workflows and ordered approver actions.
-  - [purchaseOrder.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/purchaseOrder.js) - Approved purchase records and reference IDs.
-  - [invoice.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/models/invoice.js) - Billing documents with subtotal, tax calculations, and PDF links.
-* **src/controllers/** - Route handlers routing incoming API payloads to services.
-* **src/services/** - Core business logic layer:
-  - [pdf.service.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/services/pdf.service.js) - HTML to PDF generation using Puppeteer and Cloudinary uploading.
-  - [email.service.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/services/email.service.js) - Automated mail dispatches.
-  - [approval.service.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/src/services/approval.service.js) - Approval workflow routing and remarks capture.
-* **src/routes/** - Express router endpoint mounts.
-* **src/middlewares/** - Global guards (RBAC verification, authentication checks, validation catches).
-
-### Frontend Component Layout (`frontend`)
-* [main.jsx](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/frontend/src/main.jsx) & [App.jsx](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/frontend/src/App.jsx) - Main entry point and global layout wrapper with support for dynamic Dark/Light Mode.
-* [LandingPage.jsx](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/frontend/src/pages/LandingPage.jsx) - Interactive homepage showcasing a mock Quotation Comparison Matrix, a live multi-role workflow pipeline preview, a system statistics tracker, and active audit history blocks.
-* **src/styles/** - Glassmorphism and tailored dark/light theme definitions.
-
----
-
-## 🗄️ Database Schema & Models Reference
-
-All tables are modeled using Sequelize with relational integrity constraints:
+RBAC is enforced at the **middleware level** on every protected route — not just the UI.
 
 ```
-+---------------+      +--------------+      +------------------+
-|     roles     |----->|    users     |----->|  approval_steps  |
-+---------------+      +--------------+      +------------------+
-                              |                       ^
-                              v                       |
-+----------------------+      +------------------+    |
-|   vendor_categories  |<-----|  vendor_users    |    |
-+----------------------+      +------------------+    |
-         ^                            |               |
-         |                            v               |
-         +---------------------|   vendors   |        |
-                               +-------------+        |
-                                      |               |
-                                      v               |
-+---------------+      +--------------+               |
-|  rfq_vendors  |<-----|    rfqs      |               |
-+---------------+      +--------------+               |
-                              |                       |
-                              v                       |
-                       +--------------+               |
-                       |  rfq_items   |               |
-                       +--------------+               |
-                              |                       |
-                              v                       |
-+---------------+      +--------------+               |
-| quotation_it. |<-----|  quotations  |<--------------+
-+---------------+      +--------------+
-                              |
-                              v
-                       +--------------+      +--------------+
-                       | purch_orders |----->|   invoices   |
-                       +--------------+      +--------------+
+ADMIN > PROCUREMENT_OFFICER > MANAGER > VENDOR
+```
+
+| Permission | Admin | Proc. Officer | Manager | Vendor |
+|:-----------|:-----:|:-------------:|:-------:|:------:|
+| Manage users & roles | ✅ | ❌ | ❌ | ❌ |
+| Register & approve vendors | ✅ | ✅ | ❌ | ❌ |
+| Create & publish RFQs | ✅ | ✅ | ❌ | ❌ |
+| Submit quotations | ❌ | ❌ | ❌ | ✅ |
+| View bid comparison | ✅ | ✅ | ❌ | ❌ |
+| Initiate approval pipeline | ✅ | ✅ | ❌ | ❌ |
+| Approve / reject workflows | ✅ | ✅ | ✅ | ❌ |
+| Generate Purchase Orders | ✅ | ✅ | ❌ | ❌ |
+| Generate Tax Invoices | ✅ | ❌ | ❌ | ✅ |
+| Full audit log access | ✅ | ❌ | ❌ | ❌ |
+
+**Additional security layers:**
+- 🔒 `bcryptjs` password hashing (salt rounds: 10)
+- 🍪 HTTP-only JWT cookies + refresh token rotation
+- 🛡️ `helmet` HTTP headers hardening
+- 🚦 `express-rate-limit` — 100 req / 15 min per IP
+- ✅ `express-validator` schema validation on all inputs
+
+---
+
+## 📁 Project Structure
+
+```
+VyaparSetu/
+├── backend/
+│   ├── src/
+│   │   ├── app.js              # Express setup, middleware stack
+│   │   ├── server.js           # DB connect + Socket.io + HTTP boot
+│   │   ├── config/
+│   │   │   ├── database.js     # Sequelize multi-env config (dev/test/prod)
+│   │   │   └── cloudinary.js   # Multer-Cloudinary storage engine
+│   │   ├── models/             # 19 Sequelize models with associations
+│   │   │   ├── user.js         # bcrypt hooks, scoped password exclusion
+│   │   │   ├── vendor.js       # GST, performance score, status enum
+│   │   │   ├── rfq.js          # DRAFT→PUBLISHED→CLOSED state machine
+│   │   │   ├── quotation.js    # Per-item pricing + delivery timeline
+│   │   │   ├── approvalWorkflow.js  # Multi-step approver chain
+│   │   │   ├── purchaseOrder.js     # Auto-numbered POs, PDF URL
+│   │   │   └── invoice.js           # Subtotal + tax + grand total + due date
+│   │   ├── controllers/        # Thin HTTP handlers — delegate to services
+│   │   ├── services/           # All business logic lives here
+│   │   │   ├── auth.service.js      # JWT sign/verify, refresh rotation
+│   │   │   ├── approval.service.js  # Workflow state machine
+│   │   │   ├── pdf.service.js       # Puppeteer render → Cloudinary upload
+│   │   │   └── email.service.js     # Nodemailer template dispatch
+│   │   ├── routes/             # 8 route modules mounted under /api
+│   │   ├── middlewares/        # protect(), restrictTo(), errorMiddleware()
+│   │   ├── validators/         # express-validator chains per route
+│   │   ├── sockets/            # Socket.io event emitters
+│   │   └── templates/          # EJS email & PDF templates
+│   ├── integration-test.js     # 7-phase E2E test (no test framework needed)
+│   └── clear-db.js             # Nuclear reset utility for dev
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx            # Vite entry point
+│   │   ├── App.jsx             # Global dark/light mode provider
+│   │   ├── pages/
+│   │   │   └── LandingPage.jsx # Interactive mockup + role previews
+│   │   └── styles/             # Glassmorphism CSS design system
+│   └── vite.config.js
+│
+├── db.js                       # Lightweight pg Pool helper (raw queries)
+└── README.md
 ```
 
 ---
 
-## 🔌 API Route Prefixes
+## 🗄️ Data Model
 
-All API routes are protected by JWT token authentication (excluding public authentication paths). The system exposes the following core route prefixes:
+19 tables, fully relational, with Sequelize association hooks:
 
-- **Authentication** (`/api/auth`): Registration, login, logout, session management, and password recovery.
-- **Vendors** (`/api/vendors`): Supplier registration, category tagging, status updates, and detail lookup.
-- **RFQs** (`/api/rfqs`): Drafting, publishing, files upload, and vendor assignment.
-- **Quotations** (`/api/quotations`): Quotation submission, detailed lookup, and RFQ-specific bid aggregation.
-- **Approvals** (`/api/approvals`): Workflow initiation, approval step authorizations, and remark entries.
-- **Purchase Orders** (`/api/pos`): Conversion of approved quotations to official PO documents.
-- **Invoices** (`/api/invoices`): Billing records, automated tax calculations, and PDF invoice generators.
-- **Notifications** (`/api/notifications`): Retrieve real-time updates and notifications.
+```mermaid
+erDiagram
+    roles ||--o{ users : "has"
+    users ||--o{ approval_steps : "approves"
+    users ||--o{ rfqs : "creates"
+    vendor_categories ||--o{ vendors : "classifies"
+    vendors ||--o{ vendor_users : "has"
+    vendors ||--o{ rfq_vendors : "invited to"
+    vendors ||--o{ quotations : "submits"
+    rfqs ||--o{ rfq_items : "contains"
+    rfqs ||--o{ rfq_vendors : "sent to"
+    rfqs ||--o{ quotations : "receives"
+    quotations ||--o{ quotation_items : "has"
+    quotations ||--o{ approval_workflows : "triggers"
+    approval_workflows ||--o{ approval_steps : "has"
+    quotations ||--o{ purchase_orders : "becomes"
+    purchase_orders ||--o{ invoices : "generates"
+```
 
 ---
 
-## 🛠️ Environment Configuration & Setup
+## ⚡ Quick Start
+
+> Get the full ERP running in under 5 minutes.
 
 ### Prerequisites
-1. **Node.js** (v18 or higher recommended)
-2. **PostgreSQL** instance (local database or hosted Supabase service)
-3. **Cloudinary Account** (for file attachments and PDF uploads)
-4. **SMTP Email Account** (Gmail App password recommended for mail dispatches)
+- Node.js ≥ 18
+- PostgreSQL instance ([Supabase free tier](https://supabase.com) works great)
+- Cloudinary account (free tier)
+- Gmail account with [App Password](https://myaccount.google.com/apppasswords) enabled
 
-### 🔐 Environment Variables Configuration
+### 1 · Clone & configure
 
-Create a `.env` file in the `backend` directory:
+```bash
+git clone https://github.com/harshit-kumar-dev/VyaparSetu.git
+cd VyaparSetu
+```
+
+**`backend/.env`** — copy and fill in your values:
+
 ```env
 PORT=5000
 NODE_ENV=development
 
-# PostgreSQL connection string
-DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<dbname>
+DATABASE_URL=postgresql://<user>:<password>@<host>:5432/<db>
 
-# JWT Authentication secrets
-JWT_SECRET=your_jwt_signing_secret_here
-JWT_REFRESH_SECRET=your_jwt_refresh_signing_secret_here
+JWT_SECRET=<generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
+JWT_REFRESH_SECRET=<another long random string>
 JWT_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
 
-# Cloudinary assets storage config
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-# SMTP Mail configurations
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_gmail_app_password
+SMTP_USER=your@gmail.com
+SMTP_PASS=your_app_password
 ```
 
-Create a `.env` file in the `frontend` directory:
+**`frontend/.env`**:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
----
+### 2 · Start the backend
 
-## 🚀 Installation & Run Steps
-
-### 1. Backend Setup
 ```bash
-# Navigate to the backend workspace
 cd backend
-
-# Install dependencies (use legacy-peer-deps if peer resolution mismatches occur)
-npm install --legacy-peer-deps
-
-# Create / seed the database
-# Models automatically sync on startup. To seed the essential roles:
-npx sequelize-cli db:seed:all
-
-# Start the server in development mode (runs nodemon)
-npm run dev
+npm install --legacy-peer-deps   # resolves multer-storage-cloudinary peer dep
+npm run dev                      # nodemon + auto DB sync on first start
 ```
 
-### 2. Frontend Setup
+> Sequelize auto-syncs all 19 models on first boot. No manual migration needed.
+
+### 3 · Seed the admin user
+
 ```bash
-# Navigate to the frontend workspace
+node -e "
+const axios = require('axios');
+axios.post('http://localhost:5000/api/auth/register', {
+  firstName: 'Admin', lastName: 'User',
+  email: 'admin@yourcompany.com',
+  password: 'changeme123',
+  roleName: 'ADMIN'
+}).then(r => console.log('✅ Admin ready:', r.data.data.user.email))
+  .catch(e => console.error(e.response?.data));
+"
+```
+
+### 4 · Start the frontend
+
+```bash
 cd ../frontend
-
-# Install dependencies
 npm install
-
-# Start Vite server
-npm run dev
+npm run dev       # http://localhost:5173
 ```
 
-### 3. Database Cleaning Helper
-During development, if you need to wipe and reset the database structure, run:
+### 5 · Verify the health endpoint
+
 ```bash
-node clear-db.js
+curl http://localhost:5000/api/health
+# {"success":true,"message":"Server is up and running"}
 ```
 
 ---
 
-## 🧪 Integration Verification Testing
+## 🧪 Testing
 
-A comprehensive E2E test file is provided in [integration-test.js](file:///c:/Users/Harshit%20kumar/OneDrive/Desktop/Hackathon/VyaparSetu/backend/integration-test.js) to assert the entire business logic flow in one command:
+A self-contained 7-phase integration test exercises the **entire procurement lifecycle** against a live server — no test framework, no mocks:
 
-1. **Launches authentication checks** & grabs JWT cookies.
-2. **Creates a new vendor**.
-3. **Drafts an RFQ** with line items and deadlines, and assigns the vendor.
-4. **Registers a vendor user** and submits a bid with pricing.
-5. **Initiates approval workflow** and approves it with a manager remark.
-6. **Generates the Purchase Order** (triggering Cloudinary PDF uploads).
-7. **Compiles the Tax Invoice** from the PO.
-
-### Running the E2E verification test:
-Ensure the backend server is running on port `5001` (or update `BASE_URL` in `integration-test.js`), then run:
 ```bash
+# Make sure backend is running on :5000 first
 cd backend
 node integration-test.js
 ```
 
-Upon success, you should see:
-```text
+```
 --- Phase 1: Auth ---
 ✅ Login Successful
 
 --- Phase 2: Vendor ---
-✅ Vendor Created: a1b2c3d4-...
+✅ Vendor Created: 5a144f02-c5ea-4cea-ac16-ae7717a4cd49
 
 --- Phase 3: RFQ ---
-✅ RFQ Created: b2c3d4e5-...
+✅ RFQ Created: d483fa6a-c585-49a4-ac32-17ff8ccf78d8
 
 --- Phase 4: Quotation ---
-✅ Quotation Submitted: c3d4e5f6-...
+✅ Quotation Submitted: cfccd191-8c75-403e-9a2e-0ef35b4ac3b4
 
 --- Phase 5: Approval ---
-✅ Approval Workflow Initiated: d4e5f6g7-...
+✅ Approval Workflow Initiated: 57a3887b-657d-42a0-bd1e-5c9d2f3bebbd
 ✅ Quotation Approved (Workflow Step 1)
 
 --- Phase 6: Purchase Order ---
-✅ PO Generated: e5f6g7h8-...
+✅ PO Generated: 026020b6-5a0d-46b3-a3bb-b6b6b94c31d3
 
 --- Phase 7: Invoice ---
-✅ Invoice Generated: f6g7h8i9-...
+✅ Invoice Generated: d12b62e9-4ae3-4e8f-bff0-53cfce096795
 
 --- TEST COMPLETE: SUCCESS ---
 ```
+
+> **Reset between runs:** `node clear-db.js` — drops and recreates the public schema.
+
+---
+
+## 🔌 API Surface
+
+All routes under `/api/*` require `Authorization: Bearer <token>` except `/api/auth/register` and `/api/auth/login`.
+
+| Prefix | Responsibility |
+|--------|---------------|
+| `/api/auth` | Register, login, logout, refresh token, forgot/reset password |
+| `/api/vendors` | Vendor CRUD, status management, category assignment |
+| `/api/rfqs` | RFQ creation, file upload, vendor assignment, status updates |
+| `/api/quotations` | Bid submission (Vendor), comparison fetch (Officer) |
+| `/api/approvals` | Workflow initiation, step approve/reject with remarks |
+| `/api/pos` | Purchase Order generation from approved quotations |
+| `/api/invoices` | GST invoice generation from issued POs |
+| `/api/notifications` | Real-time notification polling |
+
+---
+
+## 🛣️ Roadmap
+
+- [ ] **Dashboard analytics** — spending trends, vendor performance charts
+- [ ] **Vendor self-registration portal** — vendors onboard themselves
+- [ ] **Multi-level approval thresholds** — auto-route by PO value
+- [ ] **Bulk RFQ import** — CSV/Excel line-item upload
+- [ ] **Mobile PWA** — offline-ready for field procurement agents
+- [ ] **Webhook integrations** — ERP connectors (SAP, Tally, Zoho)
+
+---
+
+## 🤝 Contributing
+
+```bash
+# Fork, then:
+git checkout -b feature/your-feature-name
+git commit -m "feat: describe your change"
+git push origin feature/your-feature-name
+# Open a Pull Request
+```
+
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+
+---
+
+## 📄 License
+
+MIT © 2026 VendorBridge Team
+
+---
+
+<div align="center">
+
+**Built with 🔥 for the Hackathon**
+
+*If this project helped you, drop a ⭐ — it means the world to us.*
+
+</div>
