@@ -6,7 +6,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx'
 import ManagerDashboard from './pages/ManagerDashboard.jsx'
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   const [currentPage, setCurrentPage] = useState('landing') // 'landing' | 'login' | 'signup' | 'admin-dashboard' | 'manager-dashboard'
 
   useEffect(() => {

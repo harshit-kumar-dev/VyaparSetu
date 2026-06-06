@@ -182,7 +182,7 @@ function AdminDashboard({ darkMode, toggleDarkMode, onNavigate }) {
       {/* 1. Left Sidebar Navigation */}
       <aside className="dashboard-sidebar">
         <div className="sidebar-brand">
-          <div className="brand-icon">VS</div>
+          <img src="/images/logo_vyapar.png" alt="VS" className="brand-icon" style={{ background: 'transparent', padding: 0, width: '64px', height: 'auto' }} />
           <div className="brand-details">
             <span className="brand-name">VyaparSetu</span>
             <span className="brand-role">Admin Control Panel</span>

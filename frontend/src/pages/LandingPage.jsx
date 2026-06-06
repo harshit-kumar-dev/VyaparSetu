@@ -141,7 +141,7 @@ function LandingPage({ darkMode, toggleDarkMode, onNavigate }) {
       <header className="navbar">
         <div className="container">
           <a href="#" className="logo">
-            <div className="logo-icon">VB</div>
+            <img src="/images/logo_vyapar.png" alt="VB" className="logo-icon" style={{ background: 'transparent', padding: 0, width: '64px', height: 'auto' }} />
             VendorBridge
           </a>
           <nav>
@@ -177,10 +177,10 @@ function LandingPage({ darkMode, toggleDarkMode, onNavigate }) {
               approvals to automated purchase orders and invoices.
             </p>
             <div className="hero-actions">
-              <button className="btn btn-primary" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button className="btn btn-primary" style={{ display: 'flex', gap: '8px', alignItems: 'center' }} onClick={() => onNavigate('login')}>
                 Launch Interactive Demo <ArrowRight size={16} />
               </button>
-              <button className="btn btn-secondary">Explore Architecture</button>
+              <a href="#features" className="btn btn-secondary" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Explore Architecture</a>
             </div>
           </div>
 
@@ -499,7 +499,7 @@ function LandingPage({ darkMode, toggleDarkMode, onNavigate }) {
           <div className="footer-grid">
             <div className="footer-col">
               <a href="#" className="logo" style={{ border: 'none', padding: 0 }}>
-                <div className="logo-icon">VB</div>
+                <img src="/images/logo_vyapar.png" alt="VB" className="logo-icon" style={{ background: 'transparent', padding: 0, width: '64px', height: 'auto' }} />
                 VendorBridge
               </a>
               <p className="footer-about" style={{ marginTop: '10px' }}>

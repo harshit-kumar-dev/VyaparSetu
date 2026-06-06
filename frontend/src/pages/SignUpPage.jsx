@@ -28,7 +28,7 @@ function SignUpPage({ onNavigate }) {
         <div className="auth-visual-column">
           <div className="illustration-wrapper">
             <img 
-              src="/images/login_vendor.png" 
+              src="/images/vendorimage.png" 
               alt="Vendor Portal Registration" 
               className="illustration-img fade-in" 
             />
