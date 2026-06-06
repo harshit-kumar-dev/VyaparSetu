@@ -195,10 +195,6 @@ body.dark .navbar {
 /* Hero Section */
 .hero {
   padding: 80px 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;
-  align-items: center;
 }
 
 .hero-content {
@@ -1122,12 +1118,13 @@ body.dark .cta-banner .btn-secondary {
    AUTHENTICATION PAGES STYLING (LOGIN / SIGNUP)
    ========================================== */
 .auth-wrapper {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--bg-color);
-  padding: 40px 20px;
+  padding: 20px;
   width: 100%;
 }
 
@@ -1137,7 +1134,7 @@ body.dark .cta-banner .btn-secondary {
   border-radius: 24px;
   width: 100%;
   max-width: 1100px;
-  min-height: 660px;
+  max-height: calc(100vh - 40px);
   display: flex;
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -1160,11 +1157,11 @@ body.dark .cta-banner .btn-secondary {
 
 /* Left/Right Columns Styles */
 .auth-form-column {
-  padding: 50px 60px;
+  padding: 30px 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 25px;
+  gap: 15px;
   overflow-y: auto;
 }
 
@@ -1174,7 +1171,7 @@ body.dark .cta-banner .btn-secondary {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 0;
   position: relative;
   overflow: hidden;
 }
@@ -1190,7 +1187,7 @@ body.dark .auth-visual-column {
 
 .illustration-wrapper {
   width: 100%;
-  max-width: 340px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1198,8 +1195,8 @@ body.dark .auth-visual-column {
 
 .illustration-img {
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
 }
 
 @keyframes fadeInImg {
@@ -1384,12 +1381,11 @@ body.dark .demo-badge {
 .demo-btn:hover {
   transform: translateY(-2px);
   border-color: var(--accent-color);
-  color: var(--accent-color);
   box-shadow: 0 4px 12px rgba(173, 139, 115, 0.08);
 }
 
-.demo-btn:hover .demo-action {
-  color: var(--accent-color);
+.demo-btn:hover .demo-role-name {
+  text-decoration: underline;
 }
 
 .demo-btn.active {
@@ -1399,8 +1395,12 @@ body.dark .demo-badge {
   box-shadow: 0 4px 12px rgba(173, 139, 115, 0.25);
 }
 
+.demo-btn.active .demo-role-name {
+  font-weight: 900;
+}
+
 body.dark .demo-btn.active {
-  color: var(--bg-color);
+  color: #FFFBE9;
 }
 
 .demo-icon {
@@ -1417,7 +1417,7 @@ body.dark .demo-btn.active {
 }
 
 body.dark .demo-btn.active .demo-icon {
-  color: var(--bg-color);
+  color: #FFFBE9;
 }
 
 .demo-details {
@@ -1443,7 +1443,7 @@ body.dark .demo-btn.active .demo-icon {
 }
 
 body.dark .demo-btn.active .demo-action {
-  color: rgba(30, 26, 23, 0.8);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .auth-footer {
