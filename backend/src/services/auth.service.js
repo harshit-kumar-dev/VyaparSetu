@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const { User, Role } = require('../models');
 const AppError = require('../utils/AppError');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const emailService = require('./email.service');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -85,6 +87,50 @@ class AuthService {
       user.refreshToken = null;
       await user.save();
     }
+  }
+
+  async forgotPassword(email) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new AppError('No user found with that email address', 404);
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.resetToken = resetTokenHash;
+    user.resetTokenExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save({ validate: false });
+
+    try {
+      await emailService.sendResetPasswordEmail(user.email, resetToken);
+    } catch (error) {
+      user.resetToken = null;
+      user.resetTokenExpiry = null;
+      await user.save({ validate: false });
+      throw new AppError('There was an error sending the email. Try again later.', 500);
+    }
+
+    return true;
+  }
+
+  async resetPassword(token, newPassword) {
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      where: {
+        resetToken: resetTokenHash
+      }
+    });
+
+    if (!user || user.resetTokenExpiry < Date.now()) {
+      throw new AppError('Token is invalid or has expired', 400);
+    }
+
+    user.password = newPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    return true;
   }
 }
 

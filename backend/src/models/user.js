@@ -9,11 +9,13 @@ module.exports = (sequelize, DataTypes) => {
     password: { type: DataTypes.STRING, allowNull: false },
     roleId: { type: DataTypes.UUID, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
-    refreshToken: { type: DataTypes.STRING }
+    refreshToken: { type: DataTypes.STRING },
+    resetToken: { type: DataTypes.STRING },
+    resetTokenExpiry: { type: DataTypes.DATE }
   }, {
     tableName: 'users',
     timestamps: true,
-    defaultScope: { attributes: { exclude: ['password', 'refreshToken'] } },
+    defaultScope: { attributes: { exclude: ['password', 'refreshToken', 'resetToken', 'resetTokenExpiry'] } },
     scopes: { withPassword: { attributes: {} } }
   });
 

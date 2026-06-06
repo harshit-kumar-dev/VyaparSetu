@@ -1,11 +1,15 @@
 const { Invoice, PurchaseOrder, Vendor, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
+const pdfService = require('./pdf.service');
+const emailService = require('./email.service');
+const notificationService = require('./notification.service');
+const { logActivity } = require('../utils/logger');
 
 class InvoiceService {
   async generateInvoice(poId, taxRate = 0.0) {
     const t = await sequelize.transaction();
     try {
-      const po = await PurchaseOrder.findByPk(poId);
+      const po = await PurchaseOrder.findByPk(poId, { include: [{ model: Vendor, as: 'vendor' }] });
       if (!po) throw new AppError('Purchase Order not found', 404);
 
       const subtotal = po.totalAmount;
@@ -23,6 +27,23 @@ class InvoiceService {
       }, { transaction: t });
 
       await t.commit();
+
+      // Async background tasks
+      (async () => {
+        try {
+          const pdfUrl = await pdfService.generateInvoice(invoice);
+          invoice.pdfUrl = pdfUrl;
+          await invoice.save();
+          // Typically Invoice goes to Procurement Officer/Admin, mock vendor email
+          await emailService.sendInvoiceEmail(po.vendor.contactEmail, invoice);
+          await notificationService.createNotification(po.generatedById, 'Invoice Generated', `Invoice ${invoice.invoiceNumber} created.`, 'INVOICE_GENERATED', `/invoices/${invoice.id}`);
+        } catch (err) {
+          console.error('Failed PDF/Email generation for Invoice:', err);
+        }
+      })();
+
+      await logActivity(po.vendorId, 'GENERATE_INVOICE', 'Invoice', invoice.id, 'Generated Invoice for PO');
+
       return this.getInvoiceById(invoice.id);
     } catch (error) {
       await t.rollback();

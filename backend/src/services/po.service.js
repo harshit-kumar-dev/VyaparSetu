@@ -1,11 +1,15 @@
 const { PurchaseOrder, Quotation, Vendor, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
+const pdfService = require('./pdf.service');
+const emailService = require('./email.service');
+const notificationService = require('./notification.service');
+const { logActivity } = require('../utils/logger');
 
 class PurchaseOrderService {
   async generatePO(quotationId, userId) {
     const t = await sequelize.transaction();
     try {
-      const quotation = await Quotation.findByPk(quotationId);
+      const quotation = await Quotation.findByPk(quotationId, { include: [{ model: Vendor, as: 'vendor' }] });
       if (!quotation) throw new AppError('Quotation not found', 404);
       if (quotation.status !== 'ACCEPTED') {
         throw new AppError('Quotation must be accepted to generate PO', 400);
@@ -21,6 +25,22 @@ class PurchaseOrderService {
       }, { transaction: t });
 
       await t.commit();
+      
+      // Async background tasks
+      (async () => {
+        try {
+          const pdfUrl = await pdfService.generatePO(po);
+          po.pdfUrl = pdfUrl;
+          await po.save();
+          await emailService.sendPOEmail(quotation.vendor.contactEmail, po);
+          await notificationService.createNotification(quotation.vendorId, 'PO Generated', `Purchase Order ${po.poNumber} generated.`, 'PO_ISSUED', `/pos/${po.id}`);
+        } catch (err) {
+          console.error('Failed PDF/Email generation for PO:', err);
+        }
+      })();
+
+      await logActivity(userId, 'GENERATE_PO', 'PurchaseOrder', po.id, 'Generated PO for quotation');
+
       return this.getPOById(po.id);
     } catch (error) {
       await t.rollback();

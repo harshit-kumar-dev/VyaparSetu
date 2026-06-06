@@ -60,6 +60,24 @@ class AuthController {
       next(error);
     }
   }
+
+  async forgotPassword(req, res, next) {
+    try {
+      await authService.forgotPassword(req.body.email);
+      ApiResponse.success(res, 'Token sent to email');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req, res, next) {
+    try {
+      await authService.resetPassword(req.body.token, req.body.newPassword);
+      ApiResponse.success(res, 'Password reset successful');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();
